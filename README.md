@@ -1,5 +1,21 @@
 ## **NanoHat OLED**
 
+Script Launcher
+------------
+
+![Launcher img](https://github.com/DeqingSun/NanoHatOLED/raw/imageHost/nanoPiHatOptimized.gif)
+
+This is a Python script lists all scripts in `/home/pi/scripts/`. You may use buttons to select and run scripts, and make repetitive tasks easy and intuitive.
+
+To use this script, move `bakebit_nanohat_oled.py` and `scriptrunner.png` into `/root/NanoHatOLED/BakeBit/Software/Python/` where the original script locates. Make sure your new script has execution permission.
+
+Move `scripts` folder into `/home/pi/`
+
+Restart and the script should work.
+
+Original Instruction
+------------
+
 Example code of correct use and start for the NanoHat OLED.  
 
 Designed specifically to work with the NanoHat OLED:
