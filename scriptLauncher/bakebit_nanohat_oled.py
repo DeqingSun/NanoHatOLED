@@ -243,7 +243,6 @@ def draw_page():
                     #print scriptOutput
 
     oled.drawImage(image)
-
     
     lock.acquire()
     drawing = False

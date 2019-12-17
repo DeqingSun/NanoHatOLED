@@ -13,6 +13,21 @@ Move `scripts` folder into `/home/pi/`
 
 Restart and the script should work.
 
+Increase OLED refresh rate
+------------
+
+By default the I2C0 on NanoPi NEO2 is slow, we can change I2C clock speed to 400K to improve it.
+
+`fdtdump /boot/sun50i-h5-nanopi-neo2.dtb`
+
+We can find "i2c@01c2ac00", although we didn't find clock-frequency, but we can still do it!
+
+`sudo fdtput --type u /boot/sun50i-h5-nanopi-neo2.dtb /soc/i2c@01c2ac00 clock-frequency 400000`
+
+check if frequency  is OK
+
+`sudo fdtget --type u /boot/sun50i-h5-nanopi-neo2.dtb /soc/i2c@01c2ac00 clock-frequency `
+
 Original Instruction
 ------------
 
