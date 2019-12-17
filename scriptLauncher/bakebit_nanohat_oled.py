@@ -57,8 +57,9 @@ width=128
 global height
 height=64
 
-global scriptPath
-scriptPath = '/home/pi/scripts/'
+global scriptPath, scriptRootPath
+scriptRootPath = '/home/pi/scripts/'
+scriptPath = scriptRootPath
 
 global scriptIndex
 scriptIndex=0
@@ -141,6 +142,8 @@ def draw_page():
         draw.text((0, 12),scriptPath, font=smartFont, fill=255)
     else:
         scriptsInPath = os.listdir(scriptPath)
+        if (scriptPath != scriptRootPath):
+            scriptsInPath.insert(0,'..')
         filesCount = len(scriptsInPath)
         scriptsInPath.sort()    #list and sort file
         scriptIndexDrawingPrev = scriptIndexDrawing
@@ -162,7 +165,14 @@ def draw_page():
         
         #for file in scriptsInPath:
         #    print file
-        draw.text((0, 0),'Script: '+str(displayIndex)+' of '+ str(filesCount), font=smartFont, fill=255)
+        if (scriptIndexDrawing<len(scriptsInPath)): #scriptsInPath may be empty
+            fileSelected = scriptPath + scriptsInPath[scriptIndexDrawing]
+        else:
+            fileSelected = ""
+        fileTypeString = 'Script: '
+        if os.path.isdir(fileSelected):
+            fileTypeString = 'Folder: '
+        draw.text((0, 0),fileTypeString+str(displayIndex)+' of '+ str(filesCount), font=smartFont, fill=255)
         draw.line((0,12,127,12), fill=255)
         
         if (filesCount > 0):    #checkdisplayEntry
@@ -200,20 +210,23 @@ def draw_page():
             triggerExecution = False;
         lock.release()
         if ((filesCount > 0) and (needToExecute == True)):
-            fileToExecute = scriptPath + scriptsInPath[scriptIndexDrawing]
             if (runningSubprocess is not None):
                 if (runningSubprocess.poll() == None):
                     print 'Kill previous running script'
                     runningSubprocess.kill()
-            print 'Execute : '+ fileToExecute
-            try:
-                runningSubprocess = subprocess.Popen(fileToExecute, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, close_fds=ON_POSIX)
-                subprocessReadThread = threading.Thread(target=enqueue_output, args=(runningSubprocess.stdout, subprocessQueue))
-                subprocessReadThread.daemon = True # thread dies with the program
-                subprocessReadThread.start()
-            except Exception as e:
-                print('Popen error occured.')
-                print(e)
+            print 'Execute : '+ fileSelected
+            if os.path.isdir(fileSelected):
+                scriptPath = os.path.abspath(fileSelected)+'/'
+                scriptIndex = 0
+            else:
+                try:
+                    runningSubprocess = subprocess.Popen(fileSelected, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, close_fds=ON_POSIX)
+                    subprocessReadThread = threading.Thread(target=enqueue_output, args=(runningSubprocess.stdout, subprocessQueue))
+                    subprocessReadThread.daemon = True # thread dies with the program
+                    subprocessReadThread.start()
+                except Exception as e:
+                    print('Popen error occured.')
+                    print(e)
         #check running script
         if (runningSubprocess is not None):
             while True:
