@@ -104,6 +104,7 @@ subprocessReadThread = None
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
         queue.put(line)
+        #print line
     out.close()
     #print 'enqueue_output END'
 
@@ -202,6 +203,18 @@ def draw_page():
             pass    #something edit script alive may cause array out of bound error
             
         draw.line((0,49,127,49), fill=255)
+        
+        #check running script, this will be triggered as soon as the process prints, enqueue_output called
+        if (runningSubprocess is not None):
+            while True:
+                try:  line = subprocessQueue.get_nowait() # or q.get(timeout=.1)
+                except Queue.Empty:
+                    #print('no output yet')
+                    break;
+                else: # got line
+                    line = line.strip()
+                    scriptOutput = line
+                    #print scriptOutput + str(time.time())
 
         draw.text((1, 13+12*3+1), scriptOutput, font=smartFont, fill=255)
         
@@ -230,17 +243,6 @@ def draw_page():
                 except Exception as e:
                     print('Popen error occured.')
                     print(e)
-        #check running script
-        if (runningSubprocess is not None):
-            while True:
-                try:  line = subprocessQueue.get_nowait() # or q.get(timeout=.1)
-                except Queue.Empty:
-                    #print('no output yet')
-                    break;
-                else: # got line
-                    line = line.strip()
-                    scriptOutput = line
-                    #print scriptOutput
 
     oled.drawImage(image)
     
@@ -285,12 +287,20 @@ signal.signal(signal.SIGUSR1, receive_signal)
 signal.signal(signal.SIGUSR2, receive_signal)
 signal.signal(signal.SIGALRM, receive_signal)
 
+lastLoopProcessRunning = False;
+
 while True:
     try:
         draw_page()
-        for x in range(50):
+        for x in range(100):
             time.sleep(0.01)
+            processRunning = (runningSubprocess is not None and runningSubprocess.poll() == None)
+            if (lastLoopProcessRunning != processRunning):
+                lastLoopProcessRunning = processRunning
+                #print 'break'
+                break;  #redraw as soon as process ends
             if not subprocessQueue.empty():
+                #print 'break'
                 break;
     except KeyboardInterrupt:                                                                                                          
         break                     
