@@ -52,6 +52,9 @@ import Queue
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 
+pathname = os.path.dirname(sys.argv[0])
+scriptFolder = os.path.abspath(pathname)
+
 global width
 width=128
 global height
@@ -241,6 +244,7 @@ def draw_page():
 
     oled.drawImage(image)
 
+    
     lock.acquire()
     drawing = False
     lock.release()
@@ -274,7 +278,7 @@ def receive_signal(signum, stack):
 
 ##main code
 
-image0 = Image.open('scriptrunner.png').convert('1')
+image0 = Image.open(scriptFolder+'/scriptrunner.png').convert('1')
 oled.drawImage(image0)
 time.sleep(1)
 
@@ -285,8 +289,10 @@ signal.signal(signal.SIGALRM, receive_signal)
 while True:
     try:
         draw_page()
-
-        time.sleep(0.3)
+        for x in range(50):
+            time.sleep(0.01)
+            if not subprocessQueue.empty():
+                break;
     except KeyboardInterrupt:                                                                                                          
         break                     
     except IOError:                                                                              
