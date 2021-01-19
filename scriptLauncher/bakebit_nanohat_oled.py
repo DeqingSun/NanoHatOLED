@@ -283,6 +283,33 @@ image0 = Image.open(scriptFolder+'/scriptrunner.png').convert('1')
 oled.drawImage(image0)
 time.sleep(1)
 
+#look for fat partition
+fatForScriptExist = False
+fatMountingPoint = ''
+partitionInfo = subprocess.Popen( [ 'lsblk', '-P', '-f', '-p' ], stdout=subprocess.PIPE ).communicate()[0]
+partitionsData = []
+for line in partitionInfo.splitlines():
+    devDict = {}
+    for sub in line.split(' '):
+        if '=' in sub:
+            pair = sub.split('=', 1)
+            pair[1] = pair[1].replace('\"', '')
+            devDict[pair[0]] = pair[1] 
+    #check the fat devices
+    if ('FSTYPE' in devDict and devDict['FSTYPE']=='vfat'):
+        if ('LABEL' in devDict and not 'boot' in devDict['LABEL']):
+            fatForScriptExist = True
+            fatMountingPoint = devDict['MOUNTPOINT']
+            fatDevice = devDict['NAME']
+if (fatForScriptExist):
+    if (len(fatMountingPoint)>0):
+        #override the path in home folder, using the mounting point
+        pathWithSlash = fatMountingPoint
+        if ( not pathWithSlash.endswith("/")):
+            pathWithSlash = pathWithSlash+"/"
+        scriptRootPath = pathWithSlash
+        scriptPath = scriptRootPath
+
 signal.signal(signal.SIGUSR1, receive_signal)
 signal.signal(signal.SIGUSR2, receive_signal)
 signal.signal(signal.SIGALRM, receive_signal)
