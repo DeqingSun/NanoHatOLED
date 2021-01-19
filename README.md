@@ -28,6 +28,26 @@ check if frequency  is OK
 
 `sudo fdtget --type u /boot/sun50i-h5-nanopi-neo2.dtb /soc/i2c@01c2ac00 clock-frequency `
 
+Using a FAT partition for scripts
+------------
+
+Keeping scripts in a regular folder is not quite convenient to update for the novice as an SSH connector or EXT4 support is needed to update the script. The current version of the script will try to locate a mounted FAT partition. And use that partition as the script path. So whenever you need to update the script, just take off the microSD card, put it in any computer no matter what OS you use. And you can update the content. 
+
+In order to make an automatically mounted FAT partition, we can change the partitions in a Linux computer, and configure the fstab for the automatic mount.
+
+GParted tool is quite handy to change the partitions, just unmount any partitions from the card on a computer, shrink the main partition, and add a primary FAT16 partition in the unallocated space. Once you get the FAT partition, it will be visible on all computers.
+
+After you create the FAT partition, put the card in Nano Pi, check partitions with
+```lsblk -P -f -p```, and get the device name such as ```/dev/mmcblk0p3```
+
+Create a mounting point with ```mkdir /home/pi/fatDisk``` 
+
+And you can try to mount with ```sudo mount /dev/mmcblk0p3 /home/pi/fatDisk```
+
+Then edit ```/etc/fstab``` for automatic mount with ```sudo nano /etc/fstab```, add entry such as: ```/dev/mmcblk0p3    /home/pi/fatDisk vfat rw,dev,auto,async,users,exec,umask=0000,uid=1000,gid=1000 0 0```
+
+Reboot and check if the files are there with ```ls -al /home/pi/fatDisk```. They should be all 777 permission.
+
 Original Instruction
 ------------
 
