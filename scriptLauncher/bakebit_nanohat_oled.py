@@ -145,7 +145,7 @@ def draw_page():
         draw.text((0, 0),'Script Path not Found!', font=smartFont, fill=255)
         draw.text((0, 12),scriptPath, font=smartFont, fill=255)
     else:
-        scriptsInPath = os.listdir(scriptPath)
+        scriptsInPath = [n for n in os.listdir(scriptPath) if not n.startswith(".")]    #ignore hidden file start with .
         if (scriptPath != scriptRootPath):
             scriptsInPath.insert(0,'..')
         filesCount = len(scriptsInPath)
