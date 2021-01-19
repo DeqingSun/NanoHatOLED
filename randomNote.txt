@@ -1,0 +1,37 @@
+Edit partition
+
+In ubuntu, use GParted tool.
+
+umount partitions first.
+Shrink /dev/sdb2. 3.8G used, just shrink it to 5000MB. Will try to expand later.
+In the unallocated space, add new partition (primary fat16). Make it 200MB for now. Add label such as "scripts".
+
+Apply operation. It takes some time. And a Fat disk will be visible at any computer.
+
+check partitions:
+lsblk -P -f -p
+get the device name such as /dev/mmcblk0p3
+
+create mounting point:
+mkdir /home/pi/fatDisk
+
+try to mount
+sudo mount /dev/mmcblk0p3 /home/pi/fatDisk
+
+edit /etc/fstab for auto mount
+sudo nano /etc/fstab
+add such as:
+/dev/mmcblk0p3    /home/pi/fatDisk vfat rw,dev,auto,async,users,exec,umask=0000,uid=1000,gid=1000 0 0
+
+reboot and check if the files are there
+ls -al /home/pi/fatDisk
+they should be all 777 permission
+
+
+debug python:
+kill script use util
+sudo python /root/NanoHatOLED/BakeBit/Software/Python/bakebit_nanohat_oled.py
+send keystroke use util
+
+
+
