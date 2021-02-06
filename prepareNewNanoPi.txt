@@ -54,4 +54,8 @@ sudo fdtput --type u /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00 clock-fr
 sudo fdtget --type u /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00 clock-frequency
 reboot
 
+change ssh from dropbear to OpenSSH to use sftp
+sudo dietpi-software
+
+replace script
 

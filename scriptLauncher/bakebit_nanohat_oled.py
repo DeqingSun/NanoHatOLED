@@ -64,6 +64,13 @@ global scriptPath, scriptRootPath
 scriptRootPath = '/home/pi/scripts/'
 scriptPath = scriptRootPath
 
+if (not os.path.isdir(scriptPath)) :
+    #maybe home addr is not pi?
+    splitedScriptFolder=scriptFolder.split('/');
+    if (splitedScriptFolder[1]=='home'): 
+        scriptRootPath = '/home/'+splitedScriptFolder[2]+'/scripts/'
+        scriptPath = scriptRootPath
+
 global scriptIndex
 scriptIndex=0
 global displayBeginIndex
@@ -81,7 +88,7 @@ image = Image.new('1', (width, height))
 global draw
 draw = ImageDraw.Draw(image)
 global smartFont
-smartFont = ImageFont.truetype('DejaVuSansMono-Bold.ttf', 10);
+smartFont = ImageFont.truetype(scriptFolder+'/DejaVuSansMono-Bold.ttf', 10);
 
 global lock
 lock = threading.Lock()
