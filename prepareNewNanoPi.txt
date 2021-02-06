@@ -62,4 +62,33 @@ replace script
 auto start
 cp /usr/local/bin/oled-start /var/lib/dietpi/postboot.d/oled-start.sh
 
+sudo dietpi-software
+Disable boot net wait 
+change to autostart. remove the /var/lib/dietpi/postboot.d/oled-start.sh
+edit /var/lib/dietpi/dietpi-autostart/custom.sh
+add
+/home/dietpi/NanoHatOLED/NanoHatOLED
+not work well,
+remove it
+
+sudo nano /etc/systemd/system/early_oled.service
+add
+
+[Unit]
+Description=OLED start script early
+After=local-fs.target
+Before=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=sudo /home/dietpi/NanoHatOLED/NanoHatOLED
+
+[Install]
+WantedBy=network.target
+
+then
+sudo systemctl daemon-reload
+sudo systemctl enable early_oled.service
+
 
