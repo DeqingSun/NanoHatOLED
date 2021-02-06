@@ -113,7 +113,7 @@ screenSaverRunning = False
 global screenSaverPrevKeypressTime
 screenSaverPrevKeypressTime = time.time()
 global screenSaverTiming
-screenSaverTiming = 10.0
+screenSaverTiming = 120.0
 global screenSaverVars
 screenSaverVars = {'x': 0, 'y': 0, 'velx': 1, 'vely': 1}
 
