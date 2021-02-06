@@ -1,0 +1,57 @@
+At the beginning of 2021. Only Nano Pi Neo can be found. Neo2 not anymore because H5 CPU was EOF.
+
+Try dietpi, seems smaller? from https://dietpi.com/downloads/images/DietPi_NanoPiNEO-ARMv7-Buster.7z
+Put DietPi_NanoPiNEO-ARMv7-Buster.img on tf card. Check in Ubuntu, 476M regular partition.
+
+ssh root@<ip> , login with password dietpi.
+
+Enter config screen, press enter to OK.
+
+Keep password, keep serial.
+
+Exit dietpi-software for now. Choose install directly. OK.
+
+Todo: Change time zone. dpkg-reconfigure tzdata
+
+Test OLED first. Refer to https://dietpi.com/phpbb/viewtopic.php?t=3077
+
+ssh dietpi@<ip> , login with password dietpi.
+sudo dietpi-software
+
+<Software Additional> => 130 Python Pip
+<Software Additional> => 16 Build Essentials
+<Software Additional> => 17 Git
+
+Reboot required.
+
+sudo apt-get install libfreetype6-dev libjpeg-dev
+sudo pip install --upgrade ssd1306
+git clone https://github.com/friendlyarm/NanoHatOLED.git && cd NanoHatOLED && sudo -H ./install.sh
+
+Not working?
+cat /tmp/nanoled-python.log
+seems i2c not work.
+Check https://dietpi.com/phpbb/viewtopic.php?t=7796
+using overlay sun8i-h3ls
+Check /boot/dtb/sun8i-h3-nanopi-neo.dtb /boot/dtb/overlay/README.sun8i-h3-overlays
+support i2c0
+Add i2c0 to overlays in /boot/armbianEnv.txt
+reboot
+
+the PIL error. Seems default pip install for python3
+sudo apt-get install python-setuptools
+sudo pip2 install pillow
+
+And finally running!
+
+increase i2c speed. Now the screen take 1S to refresh
+sudo apt-get install device-tree-compiler
+fdtdump /boot/dtb/sun8i-h3-nanopi-neo.dtb
+fdtdump /boot/dtb/sun8i-h3-nanopi-neo.dtb | grep i2c
+sudo fdtget -p /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00
+sudo fdtget --type u /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00 clock-frequency
+sudo fdtput --type u /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00 clock-frequency 400000
+sudo fdtget --type u /boot/dtb/sun8i-h3-nanopi-neo.dtb /soc/i2c@1c2ac00 clock-frequency
+reboot
+
+
