@@ -59,3 +59,7 @@ sudo dietpi-software
 
 replace script
 
+auto start
+cp /usr/local/bin/oled-start /var/lib/dietpi/postboot.d/oled-start.sh
+
+

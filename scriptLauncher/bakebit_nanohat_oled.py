@@ -108,6 +108,15 @@ global subprocessReadThread
 subprocessQueue = Queue.Queue()
 subprocessReadThread = None
 
+global screenSaverRunning
+screenSaverRunning = False
+global screenSaverPrevKeypressTime
+screenSaverPrevKeypressTime = time.time()
+global screenSaverTiming
+screenSaverTiming = 10.0
+global screenSaverVars
+screenSaverVars = {'x': 0, 'y': 0, 'velx': 1, 'vely': 1}
+
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
         queue.put(line)
@@ -134,7 +143,10 @@ def draw_page():
     global runningSubprocess
     global subprocessQueue
     global subprocessReadThread
-
+    global screenSaverRunning
+    global screenSaverPrevKeypressTime
+    global screenSaverVars
+    
     lock.acquire()
     is_drawing = drawing
     lock.release()
@@ -250,6 +262,35 @@ def draw_page():
                 except Exception as e:
                     print('Popen error occured.')
                     print(e)
+                    
+    #process screenSaver
+    currentTime = time.time()
+    if screenSaverRunning:
+        pass;
+    else:
+        if ((currentTime-screenSaverPrevKeypressTime)>screenSaverTiming):
+            screenSaverRunning = True;
+            
+    if (screenSaverRunning):
+        draw.rectangle((0,0,width,height), outline=0, fill=0)   #clear img
+        draw.point([screenSaverVars['x'],screenSaverVars['y']], fill=255);
+        
+        #bouncing dot
+        screenSaverVars['x']+=screenSaverVars['velx']
+        if (screenSaverVars['x']>(width-1)):
+            screenSaverVars['x']=(width-1)    
+            screenSaverVars['velx'] = -screenSaverVars['velx']
+        if (screenSaverVars['x']<0):
+            screenSaverVars['x']=0;
+            screenSaverVars['velx'] = -screenSaverVars['velx']
+            
+        screenSaverVars['y']+=screenSaverVars['vely']
+        if (screenSaverVars['y']>(height-1)):
+            screenSaverVars['y']=(height-1)-1 # make it not even
+            screenSaverVars['vely'] = -screenSaverVars['vely']
+        if (screenSaverVars['y']<0):
+            screenSaverVars['y']=0;
+            screenSaverVars['vely'] = -screenSaverVars['vely']
 
     oled.drawImage(image)
     
@@ -265,24 +306,38 @@ def update_page_index(delta):
 
 def receive_signal(signum, stack):
     global triggerExecution
+    global screenSaverRunning
+    global screenSaverPrevKeypressTime
 
     if signum == signal.SIGUSR1:
         print 'K1 pressed'
-        update_page_index(-1)
-        draw_page()
+        screenSaverPrevKeypressTime = time.time()
+        if screenSaverRunning:
+            screenSaverRunning = False
+        else:
+            update_page_index(-1)
+            draw_page()
 
     if signum == signal.SIGUSR2:
         print 'K2 pressed'
-        update_page_index(1)
-        draw_page()
+        screenSaverPrevKeypressTime = time.time()
+        if screenSaverRunning:
+            screenSaverRunning = False
+        else:
+            update_page_index(1)
+            draw_page()
 
 
     if signum == signal.SIGALRM:
         print 'K3 pressed'
-        lock.acquire()
-        triggerExecution = True
-        lock.release()
-        draw_page()
+        screenSaverPrevKeypressTime = time.time()
+        if screenSaverRunning:
+            screenSaverRunning = False
+        else:
+            lock.acquire()
+            triggerExecution = True
+            lock.release()
+            draw_page()
 
 ##main code
 
