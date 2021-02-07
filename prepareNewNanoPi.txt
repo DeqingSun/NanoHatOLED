@@ -59,7 +59,7 @@ sudo dietpi-software
 
 replace script
 
-auto start
+auto start (Note the first 2 ways don't work well. Use service method)
 cp /usr/local/bin/oled-start /var/lib/dietpi/postboot.d/oled-start.sh
 
 sudo dietpi-software
@@ -90,5 +90,79 @@ WantedBy=network.target
 then
 sudo systemctl daemon-reload
 sudo systemctl enable early_oled.service
+
+change time zone to NY
+
+dpkg-reconfigure tzdata
+
+
+
+#####
+
+Edit partition
+
+In ubuntu, use GParted tool.
+
+umount partitions first.
+Shrink /dev/sdb2. 2.73G used, just shrink it to 4200MB. Note the minimal when I test was about 4100MB.
+Will try to expand later.
+In the unallocated space, add new partition (primary fat16). Make it 200MB for now. Add label such as "scripts".
+
+Apply operation. It takes some time. And a Fat disk will be visible at any computer.
+
+check partitions:
+lsblk -P -f -p
+get the device name such as /dev/mmcblk0p2
+
+create mounting point:
+mkdir /home/dietpi/fatDisk
+
+try to mount
+sudo mount /dev/mmcblk0p2 /home/dietpi/fatDisk
+
+edit /etc/fstab for auto mount
+sudo nano /etc/fstab
+add such as:
+/dev/mmcblk0p2    /home/dietpi/fatDisk vfat rw,dev,auto,async,users,exec,umask=0000,uid=1000,gid=1000 0 0
+
+reboot and check if the files are there
+ls -al /home/pi/fatDisk
+they should be all 777 permission
+
+####
+
+
+debug python:
+kill script use util
+sudo python /root/NanoHatOLED/BakeBit/Software/Python/bakebit_nanohat_oled.py
+send keystroke use util
+
+install tools
+sudo apt-get install openocd
+sudo apt-get install avrdude
+
+
+backup pi
+get end sector
+sudo parted /dev/sdb unit s print
+I got
+
+Model: APPLE SD Card Reader (scsi)
+Disk /dev/sdb: 31116288s
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags: 
+
+Number  Start     End       Size      Type     File system  Flags
+ 1      8192s     8609791s  8601600s  primary  ext4
+ 2      8609792s  9019391s  409600s   primary  fat16
+
+make it a bit bigger (sudo in front of dd, or sudo -i)
+sudo dd if=/dev/sdb of=backup.img bs=512 count=9019395 conv=fsync
+
+Or add some 0 before backup
+cat /dev/zero > /mnt/X/big_zero ; sync; rm /mnt/X/big_zero
+
+then zip the image. Worked well 
 
 
