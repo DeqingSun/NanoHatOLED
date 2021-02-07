@@ -1,0 +1,11 @@
+SUBSYSTEM!="usb", ACTION!="add", GOTO="avrisp_end"
+
+# Atmel Corp. JTAG ICE mkII
+ATTR{idVendor}=="03eb", ATTR{idProduct}=="2103", MODE="660", GROUP="pi"
+# Atmel Corp. AVRISP mkII
+ATTR{idVendor}=="03eb", ATTR{idProduct}=="2104", MODE="660", GROUP="pi"
+# Atmel Corp. Dragon
+ATTR{idVendor}=="03eb", ATTR{idProduct}=="2107", MODE="660", GROUP="pi"
+
+LABEL="avrisp_end"
+

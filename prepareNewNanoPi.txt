@@ -165,4 +165,7 @@ cat /dev/zero > /mnt/X/big_zero ; sync; rm /mnt/X/big_zero
 
 then zip the image. Worked well 
 
+Add bonjour support (optional, not in img yet)
+add Avahi-Daemon in dietpi-software
 
+add rules in /etc/udev/rules.d 
