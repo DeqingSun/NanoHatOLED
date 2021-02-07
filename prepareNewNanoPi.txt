@@ -169,3 +169,8 @@ Add bonjour support (optional, not in img yet)
 add Avahi-Daemon in dietpi-software
 
 add rules in /etc/udev/rules.d 
+copy to a folder and 
+sudo chown root:root 6*rules
+sudo mv *.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
+
